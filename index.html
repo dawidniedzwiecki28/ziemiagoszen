@@ -243,6 +243,74 @@
     }
 
     /* =========================================================
+       MODAL (hasło do archiwum)
+       ========================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(11, 21, 48, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: fade-in 0.25s var(--ease);
+    }
+    .modal-overlay[hidden] { display: none; }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 36px 32px 30px;
+      text-align: center;
+      animation: modal-pop 0.3s var(--ease);
+    }
+    @keyframes modal-pop {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+    .modal-icon {
+      width: 52px; height: 52px;
+      margin: 0 auto 18px;
+      display: grid; place-items: center;
+      border-radius: 14px;
+      background: var(--navy-900);
+      color: var(--gold-soft);
+    }
+    .modal h2 { font-size: 1.5rem; margin-bottom: 0.3em; }
+    .modal-desc { color: var(--gray-600); margin-bottom: 22px; }
+    .modal input[type="password"] {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      padding: 13px 16px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--ink);
+      transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .modal input[type="password"]:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200, 162, 74, 0.25);
+    }
+    .modal-error { color: #b3261e; font-size: 0.9rem; margin: 12px 0 0; }
+    .modal-error[hidden] { display: none; }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 22px;
+    }
+    .modal-actions .btn { flex: 1; }
+
+    /* =========================================================
        PRZYCISKI
        ========================================================= */
     .btn {
@@ -286,6 +354,14 @@
       border-color: var(--gray-200);
     }
     .btn--ghost:hover { background: var(--gray-100); box-shadow: none; }
+
+    /* Przyciski drugorzędne w hero — delikatna ciemna obramówka, by nie zlewały się ze stroną (tło bez zmian) */
+    .hero-actions .btn--ghost {
+      border-color: rgba(11, 21, 48, 0.35);
+    }
+    .hero-actions .btn--ghost:hover {
+      border-color: rgba(11, 21, 48, 0.55);
+    }
 
     .btn--large { padding: 17px 34px; font-size: 1.06rem; }
 
@@ -551,6 +627,13 @@
             ▶ Przejdź do kanału YouTube
           </a>
           <a class="btn btn--ghost btn--large" href="#informacje" data-i18n="hero.btnMore">Informacje o spotkaniach</a>
+          <!-- Prywatne archiwum: przycisk otwiera modal z hasłem (prototyp, hasło sprawdzane po stronie klienta) -->
+          <button type="button" class="btn btn--ghost btn--large" id="archiveBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span data-i18n="hero.btnArchive">Przejdź do prywatnego archiwum</span>
+          </button>
         </div>
       </div>
       </div>
@@ -633,6 +716,29 @@
 
   </main>
 
+  <!-- ===================== MODAL: HASŁO DO ARCHIWUM ===================== -->
+  <div class="modal-overlay" id="archiveModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="archiveModalTitle">
+      <div class="modal-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h2 id="archiveModalTitle" data-i18n="archive.modalTitle">Prywatne archiwum</h2>
+      <p class="modal-desc" data-i18n="archive.modalDesc">Wprowadź hasło, aby otworzyć archiwum.</p>
+      <form id="archiveForm" novalidate>
+        <input type="password" id="archivePass" autocomplete="current-password"
+               data-i18n-ph="archive.passPlaceholder" placeholder="Hasło"
+               aria-label="Hasło" />
+        <p class="modal-error" id="archiveError" role="alert" hidden data-i18n="archive.wrong">Nieprawidłowe hasło.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn--ghost" id="archiveCancel" data-i18n="archive.cancel">Anuluj</button>
+          <button type="submit" class="btn btn--primary" data-i18n="archive.enter">Wejdź</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ===================== SEKCJA 4 — STOPKA ===================== -->
   <footer class="site-footer">
     <div class="container">
@@ -700,6 +806,13 @@
         'hero.btnYoutube': '▶ Przejdź do kanału YouTube',
         'hero.btnYoutubeAria': 'Przejdź do kanału YouTube (otwiera nową kartę)',
         'hero.btnMore': 'Informacje o spotkaniach',
+        'hero.btnArchive': 'Przejdź do prywatnego archiwum',
+        'archive.modalTitle': 'Prywatne archiwum',
+        'archive.modalDesc': 'Wprowadź hasło, aby otworzyć archiwum.',
+        'archive.passPlaceholder': 'Hasło',
+        'archive.wrong': 'Nieprawidłowe hasło.',
+        'archive.cancel': 'Anuluj',
+        'archive.enter': 'Wejdź',
         'info.eyebrow': 'Informacje o zborze',
         'info.title': 'Kiedy i gdzie się spotykamy',
         'info.subtitle': 'Spotykamy się regularnie, a nasze nabożeństwa są dostępne również online.',
@@ -728,6 +841,13 @@
         'hero.btnYoutube': '▶ Go to our YouTube channel',
         'hero.btnYoutubeAria': 'Go to our YouTube channel (opens a new tab)',
         'hero.btnMore': 'Meeting information',
+        'hero.btnArchive': 'Go to private archive',
+        'archive.modalTitle': 'Private archive',
+        'archive.modalDesc': 'Enter the password to open the archive.',
+        'archive.passPlaceholder': 'Password',
+        'archive.wrong': 'Incorrect password.',
+        'archive.cancel': 'Cancel',
+        'archive.enter': 'Enter',
         'info.eyebrow': 'About the church',
         'info.title': 'When and where we meet',
         'info.subtitle': 'We meet regularly, and our services are also available online.',
@@ -764,6 +884,12 @@
         if (value !== undefined) el.setAttribute('aria-label', value);
       });
 
+      // Tłumaczone placeholdery
+      document.querySelectorAll('[data-i18n-ph]').forEach((el) => {
+        const value = dict[el.getAttribute('data-i18n-ph')];
+        if (value !== undefined) el.setAttribute('placeholder', value);
+      });
+
       // Meta dokumentu + zapis wyboru
       document.documentElement.lang = lang;
       if (dict.docTitle) document.title = dict.docTitle;
@@ -787,6 +913,57 @@
       initial = I18N[nav] ? nav : 'pl';
     }
     setLanguage(initial);
+
+    /* =========================================================
+       5) PRYWATNE ARCHIWUM — modal z hasłem
+          UWAGA: to tylko prototyp. Hasło jest sprawdzane po stronie
+          klienta (widoczne w źródle), więc NIE jest realnym
+          zabezpieczeniem. Docelowo logowanie przeniesiemy na serwer.
+       ========================================================= */
+    const ARCHIVE_PASSWORD = 'goszen1963';
+    const ARCHIVE_AUTH_KEY = 'goszenArchiveAuth';
+
+    const archiveBtn = document.getElementById('archiveBtn');
+    const archiveModal = document.getElementById('archiveModal');
+    const archiveForm = document.getElementById('archiveForm');
+    const archivePass = document.getElementById('archivePass');
+    const archiveError = document.getElementById('archiveError');
+    const archiveCancel = document.getElementById('archiveCancel');
+
+    function openArchiveModal() {
+      archiveError.hidden = true;
+      archivePass.value = '';
+      archiveModal.hidden = false;
+      archivePass.focus();
+    }
+    function closeArchiveModal() {
+      archiveModal.hidden = true;
+      archiveBtn.focus();
+    }
+
+    archiveBtn.addEventListener('click', openArchiveModal);
+    archiveCancel.addEventListener('click', closeArchiveModal);
+
+    // Zamknięcie modalu: klik w tło lub Escape
+    archiveModal.addEventListener('click', (e) => {
+      if (e.target === archiveModal) closeArchiveModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !archiveModal.hidden) closeArchiveModal();
+    });
+
+    archiveForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (archivePass.value === ARCHIVE_PASSWORD) {
+        // Ustawiamy znacznik sesji i przechodzimy do archiwum
+        try { sessionStorage.setItem(ARCHIVE_AUTH_KEY, 'ok'); } catch (e) {}
+        window.location.href = 'archiwum.html';
+      } else {
+        archiveError.hidden = false;
+        archivePass.focus();
+        archivePass.select();
+      }
+    });
   </script>
 </body>
 </html>

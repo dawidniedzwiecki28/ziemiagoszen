@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Prywatne archiwum — Ziemia Goszen</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== TOKENY (spójne ze stroną główną) ===== */
+    :root {
+      --navy-900: #0b1530;
+      --navy-700: #1b2a52;
+      --ink: #1a1f2b;
+      --gray-600: #5f5a4f;
+      --gray-400: #95907f;
+      --gray-200: #d8cfba;
+      --gray-100: #e2d9c5;
+      --white: #ffffff;
+      --bg: #e8e0cf;
+      --surface: #faf7f0;
+      --gold: #c8a24a;
+      --gold-soft: #e7d4a3;
+      --danger: #b3261e;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow-md: 0 10px 30px rgba(16, 24, 40, 0.08);
+      --shadow-lg: 0 24px 60px rgba(11, 21, 48, 0.16);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+    a { color: inherit; }
+    button { font-family: var(--font-sans); cursor: pointer; }
+
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+    .container { width: 100%; max-width: 1080px; margin-inline: auto; padding-inline: 24px; }
+
+    /* ===== PRZYCISKI ===== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 20px; font-size: 0.95rem; font-weight: 600;
+      color: var(--white); background: var(--navy-900);
+      border: 1px solid transparent; border-radius: 999px;
+      transition: transform 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .btn:hover { transform: translateY(-1px); background: var(--navy-700); box-shadow: var(--shadow-md); }
+    .btn--ghost { background: transparent; color: var(--ink); border-color: var(--gray-200); }
+    .btn--ghost:hover { background: var(--surface); color: var(--ink); box-shadow: none; }
+    .btn--sm { padding: 8px 14px; font-size: 0.85rem; }
+    .btn--danger { background: transparent; color: var(--danger); border-color: rgba(179,38,30,0.3); }
+    .btn--danger:hover { background: rgba(179,38,30,0.08); color: var(--danger); box-shadow: none; }
+
+    /* ===== MODAL (nowy folder) ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      display: grid; place-items: center; padding: 24px;
+      background: rgba(11, 21, 48, 0.45);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      animation: fade-in 0.25s var(--ease);
+    }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      width: 100%; max-width: 400px; text-align: center;
+      background: var(--surface); border: 1px solid var(--gray-200);
+      border-radius: var(--radius); box-shadow: var(--shadow-lg);
+      padding: 36px 32px 30px;
+      animation: modal-pop 0.3s var(--ease);
+    }
+    @keyframes modal-pop {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+    .modal-icon {
+      width: 52px; height: 52px; margin: 0 auto 18px;
+      display: grid; place-items: center; border-radius: 14px;
+      background: var(--navy-900); color: var(--gold-soft);
+    }
+    .modal h2 { font-size: 1.5rem; margin-bottom: 0.3em; }
+    .modal-desc { color: var(--gray-600); margin: 0 0 22px; }
+    .modal-error { color: var(--danger); font-size: 0.9rem; margin: 12px 0 0; }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; margin-top: 22px; }
+    .modal-actions .btn { flex: 1; }
+
+    /* ===== EKRAN LOGOWANIA ===== */
+    .gate {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .gate-card {
+      width: 100%; max-width: 400px;
+      background: var(--surface);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 38px 32px 30px;
+      text-align: center;
+    }
+    .gate-icon {
+      width: 52px; height: 52px; margin: 0 auto 18px;
+      display: grid; place-items: center; border-radius: 14px;
+      background: var(--navy-900); color: var(--gold-soft);
+    }
+    .gate-card h1 { font-size: 1.5rem; margin-bottom: 6px; }
+    .gate-card p { color: var(--gray-600); margin: 0 0 22px; }
+    .field {
+      width: 100%; font-family: var(--font-sans); font-size: 1rem;
+      padding: 13px 16px; border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm); background: var(--white); color: var(--ink);
+      transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .field:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,162,74,0.25); }
+    .gate-error { color: var(--danger); font-size: 0.9rem; margin: 12px 0 0; }
+    .gate .btn { width: 100%; margin-top: 18px; }
+    .gate-back { display: inline-block; margin-top: 18px; color: var(--gray-600); font-size: 0.9rem; text-decoration: none; }
+    .gate-back:hover { color: var(--ink); }
+
+    [hidden] { display: none !important; }
+
+    /* ===== NAGŁÓWEK APLIKACJI ===== */
+    .app-header {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250, 247, 240, 0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .app-header .container {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; height: 66px;
+    }
+    .app-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-serif); font-weight: 600; font-size: 1.1rem; }
+    .app-brand .mark {
+      width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px;
+      background: var(--navy-900); color: var(--gold-soft); font-family: var(--font-serif); font-size: 0.9rem;
+    }
+    .app-header-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ===== PASEK NARZĘDZI ===== */
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+      padding-block: 30px 22px;
+    }
+    .search {
+      position: relative; flex: 1 1 260px; min-width: 0;
+    }
+    .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; }
+    .search input { width: 100%; padding-left: 42px; }
+
+    .hint {
+      font-size: 0.85rem; color: var(--gray-600);
+      background: var(--gray-100); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 26px;
+    }
+    .hint strong { color: var(--ink); }
+
+    /* ===== FOLDERY ===== */
+    .folder {
+      background: var(--surface);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+    .folder-head {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .folder-head .folder-ico { color: var(--gold); flex: none; }
+    .folder-name { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 500; }
+    .folder-count { color: var(--gray-400); font-size: 0.85rem; font-weight: 500; }
+    .folder-head-actions { margin-left: auto; display: flex; gap: 8px; flex: none; }
+
+    .folder-body { padding: 18px 22px 22px; }
+
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .file-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .file-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .file-thumb {
+      height: 120px; background: var(--gray-100);
+      display: grid; place-items: center; overflow: hidden; color: var(--gray-400);
+    }
+    .file-thumb img, .file-thumb video { width: 100%; height: 100%; object-fit: cover; }
+    .file-meta { padding: 10px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .file-name { font-size: 0.88rem; font-weight: 600; word-break: break-word; }
+    .file-sub { font-size: 0.74rem; color: var(--gray-400); }
+    .file-actions { display: flex; gap: 6px; padding: 0 12px 12px; }
+    .file-actions .btn { flex: 1; }
+
+    .empty {
+      color: var(--gray-600); font-size: 0.92rem;
+      padding: 8px 0;
+    }
+    .empty-state {
+      text-align: center; padding: 70px 20px; color: var(--gray-600);
+    }
+    .empty-state svg { color: var(--gray-400); margin-bottom: 12px; }
+    .empty-state h2 { font-size: 1.4rem; color: var(--ink); margin-bottom: 6px; }
+
+    .footer-note { text-align: center; color: var(--gray-400); font-size: 0.8rem; padding: 30px 0 50px; }
+
+    @media (max-width: 560px) {
+      .toolbar { padding-block: 22px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ EKRAN LOGOWANIA (gate) ============ -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <div class="gate-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h1>Prywatne archiwum</h1>
+      <p>Wprowadź hasło, aby uzyskać dostęp.</p>
+      <form id="gateForm" novalidate>
+        <input type="password" id="gatePass" class="field" placeholder="Hasło" autocomplete="current-password" aria-label="Hasło" />
+        <p class="gate-error" id="gateError" role="alert" hidden>Nieprawidłowe hasło.</p>
+        <button type="submit" class="btn">Wejdź</button>
+      </form>
+      <a class="gate-back" href="index.html">← Powrót na stronę</a>
+    </div>
+  </div>
+
+  <!-- ============ APLIKACJA ARCHIWUM ============ -->
+  <div id="app" hidden>
+    <header class="app-header">
+      <div class="container">
+        <div class="app-brand">
+          <span class="mark" aria-hidden="true">ZG</span>
+          Prywatne archiwum
+        </div>
+        <div class="app-header-actions">
+          <a class="btn btn--ghost btn--sm" href="index.html">← Strona główna</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="toolbar">
+        <div class="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="search" id="searchInput" class="field" placeholder="Szukaj folderu lub pliku…" aria-label="Szukaj" />
+        </div>
+        <button type="button" class="btn" id="newFolderBtn">+ Nowy folder</button>
+      </div>
+
+      <p class="hint">
+        Pliki są przechowywane <strong>tylko w tej przeglądarce, na tym komputerze</strong>
+        (IndexedDB). Nic nie jest wysyłane do internetu. Wyczyszczenie danych przeglądarki usunie archiwum.
+        To wersja prototypowa.
+      </p>
+
+      <div id="folders"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
+        </svg>
+        <h2>Brak folderów</h2>
+        <p>Utwórz pierwszy folder powyżej, aby zacząć dodawać pliki.</p>
+      </div>
+
+      <p class="footer-note">Ziemia Goszen — prywatne archiwum (prototyp)</p>
+    </main>
+
+    <!-- Modal: nowy folder -->
+    <div class="modal-overlay" id="folderModal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="folderModalTitle">
+        <div class="modal-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
+          </svg>
+        </div>
+        <h2 id="folderModalTitle">Nowy folder</h2>
+        <p class="modal-desc">Podaj nazwę folderu.</p>
+        <form id="folderModalForm" novalidate>
+          <input type="text" id="folderModalInput" class="field" placeholder="Nazwa folderu" aria-label="Nazwa folderu" />
+          <p class="modal-error" id="folderModalError" role="alert" hidden></p>
+          <div class="modal-actions">
+            <button type="button" class="btn btn--ghost" id="folderModalCancel">Anuluj</button>
+            <button type="submit" class="btn">Utwórz</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       PRYWATNE ARCHIWUM (prototyp)
+
+       - Hasło sprawdzane po stronie klienta (NIE jest realnym
+         zabezpieczeniem — w przyszłości przeniesiemy je na serwer).
+       - Pliki trzymane lokalnie w IndexedDB tej przeglądarki.
+         Nic nie jest wysyłane zdalnie.
+       - Brak zagnieżdżonych folderów; plik zawsze należy do folderu.
+       ========================================================= */
+    const PASSWORD = 'goszen1963';
+    const AUTH_KEY = 'goszenArchiveAuth';
+
+    /* ---------- Logowanie ---------- */
+    const gate = document.getElementById('gate');
+    const app = document.getElementById('app');
+    const gateForm = document.getElementById('gateForm');
+    const gatePass = document.getElementById('gatePass');
+    const gateError = document.getElementById('gateError');
+
+    function showApp() {
+      gate.hidden = true;
+      app.hidden = false;
+      init();
+    }
+
+    gateForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (gatePass.value === PASSWORD) {
+        try { sessionStorage.setItem(AUTH_KEY, 'ok'); } catch (e) {}
+        showApp();
+      } else {
+        gateError.hidden = false;
+        gatePass.select();
+      }
+    });
+
+    /* ---------- IndexedDB ---------- */
+    const DB_NAME = 'goszenArchive';
+    const DB_VERSION = 1;
+    let db;
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        let req;
+        try {
+          req = indexedDB.open(DB_NAME, DB_VERSION);
+        } catch (e) {
+          reject(e);
+          return;
+        }
+        // Zabezpieczenie: jeśli open() nie zakończy się w 4 s (np. tryb prywatny
+        // Safari potrafi „zawiesić” żądanie), zgłaszamy czytelny błąd.
+        const timer = setTimeout(() => {
+          reject(new Error('Przekroczono czas otwierania bazy — najczęściej tryb prywatny przeglądarki blokuje IndexedDB. Spróbuj w zwykłym oknie lub w Chrome.'));
+        }, 4000);
+        const done = (fn, val) => { clearTimeout(timer); fn(val); };
+
+        req.onupgradeneeded = (e) => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains('folders')) {
+            d.createObjectStore('folders', { keyPath: 'name' });
+          }
+          if (!d.objectStoreNames.contains('files')) {
+            const store = d.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
+            store.createIndex('folder', 'folder', { unique: false });
+          }
+        };
+        req.onsuccess = () => done(resolve, req.result);
+        req.onerror = () => done(reject, req.error || new Error('Błąd otwierania bazy danych.'));
+        req.onblocked = () => done(reject, new Error('Baza jest zablokowana przez inną otwartą kartę z tą stroną — zamknij pozostałe karty i odśwież.'));
+      });
+    }
+
+    function asPromise(request) {
+      return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function store(name, mode) {
+      return db.transaction(name, mode).objectStore(name);
+    }
+
+    /* ---------- Operacje na danych ---------- */
+    async function getFolders() {
+      const all = await asPromise(store('folders', 'readonly').getAll());
+      return all.sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+    }
+
+    async function addFolder(name) {
+      // Brak duplikatów (keyPath = name => put nadpisze, ale chcemy zachować istniejący)
+      const existing = await asPromise(store('folders', 'readonly').get(name));
+      if (existing) return false;
+      await asPromise(store('folders', 'readwrite').add({ name, createdAt: Date.now() }));
+      return true;
+    }
+
+    async function deleteFolder(name) {
+      // Usuń wszystkie pliki z tego folderu, potem sam folder
+      const ids = await asPromise(store('files', 'readonly').index('folder').getAllKeys(name));
+      const tx = db.transaction(['files', 'folders'], 'readwrite');
+      ids.forEach((id) => tx.objectStore('files').delete(id));
+      tx.objectStore('folders').delete(name);
+      return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+    }
+
+    async function getFiles(folder) {
+      const all = await asPromise(store('files', 'readonly').index('folder').getAll(folder));
+      return all.sort((a, b) => b.addedAt - a.addedAt);
+    }
+
+    async function addFiles(folder, fileList) {
+      const tx = db.transaction('files', 'readwrite');
+      [...fileList].forEach((file) => {
+        tx.objectStore('files').add({
+          folder,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          blob: file,            // obiekt File JEST Blobem — trafia w całości do IndexedDB
+          addedAt: Date.now()
+        });
+      });
+      return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+    }
+
+    async function deleteFile(id) {
+      await asPromise(store('files', 'readwrite').delete(id));
+    }
+
+    /* ---------- Renderowanie ---------- */
+    const foldersEl = document.getElementById('folders');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+
+    // Zwalniamy poprzednie obiektowe URL-e, by nie wyciekała pamięć
+    let activeUrls = [];
+    function freshUrl(blob) { const u = URL.createObjectURL(blob); activeUrls.push(u); return u; }
+
+    function kind(type) {
+      if (type.startsWith('image/')) return 'image';
+      if (type.startsWith('video/')) return 'video';
+      return 'document';
+    }
+    function fmtSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    }
+
+    const docIcon = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+    const folderIcon = '<svg class="folder-ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>';
+
+    async function render() {
+      // Sprzątanie URL-i z poprzedniego renderu
+      activeUrls.forEach(URL.revokeObjectURL);
+      activeUrls = [];
+
+      const query = searchInput.value.trim().toLowerCase();
+      const folders = await getFolders();
+
+      foldersEl.innerHTML = '';
+
+      if (folders.length === 0) {
+        emptyState.hidden = false;
+        return;
+      }
+      emptyState.hidden = true;
+
+      let anyVisible = false;
+
+      for (const folder of folders) {
+        const files = await getFiles(folder.name);
+        const folderMatches = folder.name.toLowerCase().includes(query);
+        // Jeśli pasuje nazwa folderu — pokaż wszystkie pliki; w innym wypadku tylko pasujące nazwą
+        const visibleFiles = query && !folderMatches
+          ? files.filter((f) => f.name.toLowerCase().includes(query))
+          : files;
+
+        // Przy aktywnym wyszukiwaniu: ukryj folder, który nie pasuje i nie ma pasujących plików
+        if (query && !folderMatches && visibleFiles.length === 0) continue;
+        anyVisible = true;
+
+        foldersEl.appendChild(renderFolder(folder, visibleFiles, files.length));
+      }
+
+      if (!anyVisible) {
+        const p = document.createElement('p');
+        p.className = 'empty-state';
+        p.innerHTML = '<h2>Brak wyników</h2><p>Żaden folder ani plik nie pasuje do wyszukiwania.</p>';
+        foldersEl.appendChild(p);
+      }
+    }
+
+    function renderFolder(folder, files, totalCount) {
+      const wrap = document.createElement('section');
+      wrap.className = 'folder';
+
+      // Nagłówek
+      const head = document.createElement('div');
+      head.className = 'folder-head';
+      head.innerHTML = folderIcon +
+        '<span class="folder-name"></span>' +
+        '<span class="folder-count"></span>' +
+        '<div class="folder-head-actions"></div>';
+      head.querySelector('.folder-name').textContent = folder.name;
+      head.querySelector('.folder-count').textContent =
+        totalCount === 1 ? '1 plik' : totalCount + ' plików';
+
+      const actions = head.querySelector('.folder-head-actions');
+
+      // Dodawanie plików
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn btn--sm';
+      addBtn.textContent = '+ Pliki';
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.multiple = true;
+      fileInput.accept = 'image/*,video/*,.pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx,.odt,.rtf';
+      fileInput.hidden = true;
+      addBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', async () => {
+        if (fileInput.files.length) {
+          await addFiles(folder.name, fileInput.files);
+          await render();
+        }
+      });
+
+      // Usuwanie folderu
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn btn--sm btn--danger';
+      delBtn.textContent = 'Usuń folder';
+      delBtn.addEventListener('click', async () => {
+        if (confirm('Usunąć folder „' + folder.name + '” i wszystkie jego pliki?')) {
+          await deleteFolder(folder.name);
+          await render();
+        }
+      });
+
+      actions.append(addBtn, fileInput, delBtn);
+      wrap.appendChild(head);
+
+      // Treść
+      const body = document.createElement('div');
+      body.className = 'folder-body';
+
+      if (files.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'empty';
+        empty.textContent = 'Folder jest pusty — dodaj pliki przyciskiem „+ Pliki”.';
+        body.appendChild(empty);
+      } else {
+        const grid = document.createElement('div');
+        grid.className = 'files-grid';
+        files.forEach((file) => grid.appendChild(renderFile(file)));
+        body.appendChild(grid);
+      }
+
+      wrap.appendChild(body);
+      return wrap;
+    }
+
+    function renderFile(file) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+      const k = kind(file.type);
+      const url = freshUrl(file.blob);
+
+      // Miniatura
+      const thumb = document.createElement('div');
+      thumb.className = 'file-thumb';
+      if (k === 'image') {
+        const img = document.createElement('img');
+        img.src = url; img.alt = file.name; img.loading = 'lazy';
+        thumb.appendChild(img);
+      } else if (k === 'video') {
+        const vid = document.createElement('video');
+        vid.src = url; vid.muted = true;
+        thumb.appendChild(vid);
+      } else {
+        thumb.innerHTML = docIcon;
+      }
+
+      // Metadane
+      const meta = document.createElement('div');
+      meta.className = 'file-meta';
+      const nameEl = document.createElement('span');
+      nameEl.className = 'file-name';
+      nameEl.textContent = file.name;
+      const sub = document.createElement('span');
+      sub.className = 'file-sub';
+      const label = k === 'image' ? 'Obraz' : k === 'video' ? 'Wideo' : 'Dokument';
+      sub.textContent = label + ' · ' + fmtSize(file.size);
+      meta.append(nameEl, sub);
+
+      // Akcje
+      const acts = document.createElement('div');
+      acts.className = 'file-actions';
+      const openBtn = document.createElement('button');
+      openBtn.className = 'btn btn--ghost btn--sm';
+      openBtn.textContent = 'Pokaż';
+      openBtn.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn btn--danger btn--sm';
+      delBtn.textContent = 'Usuń';
+      delBtn.addEventListener('click', async () => {
+        if (confirm('Usunąć plik „' + file.name + '”?')) {
+          await deleteFile(file.id);
+          await render();
+        }
+      });
+      acts.append(openBtn, delBtn);
+
+      card.append(thumb, meta, acts);
+      return card;
+    }
+
+    /* ---------- Zdarzenia UI ---------- */
+    /* ---------- Modal: nowy folder ---------- */
+    const folderModal = document.getElementById('folderModal');
+    const folderModalForm = document.getElementById('folderModalForm');
+    const folderModalInput = document.getElementById('folderModalInput');
+    const folderModalError = document.getElementById('folderModalError');
+    const newFolderBtn = document.getElementById('newFolderBtn');
+
+    function openFolderModal() {
+      folderModalInput.value = '';
+      folderModalError.hidden = true;
+      folderModal.hidden = false;
+      folderModalInput.focus();
+    }
+    function closeFolderModal() {
+      folderModal.hidden = true;
+      newFolderBtn.focus();
+    }
+
+    newFolderBtn.addEventListener('click', openFolderModal);
+    document.getElementById('folderModalCancel').addEventListener('click', closeFolderModal);
+    folderModal.addEventListener('click', (e) => { if (e.target === folderModal) closeFolderModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !folderModal.hidden) closeFolderModal();
+    });
+
+    function showFolderError(msg) {
+      folderModalError.textContent = msg;
+      folderModalError.hidden = false;
+      folderModalInput.focus();
+    }
+
+    folderModalForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = folderModalInput.value.trim();
+      if (!name) { showFolderError('Podaj nazwę folderu.'); return; }
+      if (!db) { showFolderError('Magazyn niedostępny: ' + (dbError && dbError.message ? dbError.message : 'nieznany błąd') ); return; }
+      try {
+        const ok = await addFolder(name);
+        if (!ok) { showFolderError('Folder o tej nazwie już istnieje.'); return; }
+        closeFolderModal();
+        await render();
+      } catch (err) {
+        console.error('Błąd tworzenia folderu:', err);
+        showFolderError('Nie udało się utworzyć folderu: ' + (err && err.message ? err.message : err));
+      }
+    });
+
+    searchInput.addEventListener('input', () => render());
+
+    /* ---------- Start aplikacji ---------- */
+    let dbError = null;
+
+    // Usunięcie bazy (z timeoutem i obsługą blokady)
+    function deleteDB() {
+      return new Promise((resolve, reject) => {
+        let req;
+        try { req = indexedDB.deleteDatabase(DB_NAME); }
+        catch (e) { reject(e); return; }
+        const timer = setTimeout(() => reject(new Error('Przekroczono czas usuwania bazy (zamknij inne karty z tą stroną).')), 4000);
+        const done = (fn, val) => { clearTimeout(timer); fn(val); };
+        req.onsuccess = () => done(resolve);
+        req.onerror = () => done(reject, req.error || new Error('Błąd usuwania bazy.'));
+        req.onblocked = () => done(reject, new Error('Usuwanie zablokowane — zamknij inne karty z tą stroną i spróbuj ponownie.'));
+      });
+    }
+
+    // Skasuj i odtwórz pusty magazyn (po awarii bazy)
+    async function recreateStorage() {
+      if (!confirm('To usunie wszystkie zapisane foldery i pliki w tej przeglądarce i utworzy pusty magazyn. Kontynuować?')) return;
+      try {
+        db = null;
+        dbError = null;
+        await deleteDB();
+        db = await openDB();
+        await render();
+      } catch (err) {
+        console.error('Nie udało się odtworzyć magazynu:', err);
+        dbError = err;
+        showStorageError();
+      }
+    }
+
+    // Ekran błędu magazynu + przycisk odtworzenia
+    function showStorageError() {
+      console.error('Nie można otworzyć IndexedDB:', dbError);
+      emptyState.hidden = true;
+      foldersEl.innerHTML =
+        '<div class="empty-state"><h2>Magazyn niedostępny</h2>' +
+        '<p id="dbErrMsg"></p>' +
+        '<p>Jeśli to błąd jednorazowy, spróbuj odtworzyć magazyn. ' +
+        'Uwaga: usunie to wszystkie zapisane pliki w tej przeglądarce.</p>' +
+        '<p style="margin-top:18px"><button type="button" class="btn" id="recreateBtn">Utwórz magazyn od nowa</button></p>' +
+        '<p style="margin-top:14px;font-size:0.82rem">Jeśli problem wraca: otwórz stronę przez http:// (lokalny serwer), ' +
+        'wyłącz tryb prywatny lub użyj Chrome.</p></div>';
+      document.getElementById('dbErrMsg').textContent = 'Szczegóły: ' + (dbError && dbError.message ? dbError.message : dbError);
+      document.getElementById('recreateBtn').addEventListener('click', recreateStorage);
+    }
+
+    async function init() {
+      // Diagnostyka: czy IndexedDB w ogóle istnieje i czy nie jesteśmy na file://
+      if (location.protocol === 'file:') {
+        dbError = new Error('Strona otwarta przez file:// — przeglądarki blokują tu lokalną bazę. Otwórz przez http:// (np. http://localhost:8000/archiwum.html).');
+      } else if (!('indexedDB' in window) || !window.indexedDB) {
+        dbError = new Error('Ta przeglądarka nie udostępnia IndexedDB (np. tryb prywatny w Safari).');
+      }
+
+      if (!dbError) {
+        try {
+          db = await openDB();
+          await addFolder('Inne');   // domyślny folder — zawsze obecny
+          await render();
+          return;
+        } catch (err) {
+          dbError = err;
+        }
+      }
+
+      showStorageError();
+    }
+
+    /* ---------- Auto-logowanie (na końcu skryptu, po zdefiniowaniu
+       wszystkich zmiennych — inaczej init() trafia w „temporal dead zone”) ---------- */
+    if (sessionStorage.getItem(AUTH_KEY) === 'ok') {
+      showApp();
+    } else {
+      gatePass.focus();
+    }
+  </script>
+</body>
+</html>
