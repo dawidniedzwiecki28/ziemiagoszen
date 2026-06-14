@@ -1,11 +1,792 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ziemiagoszen</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ===== SEO ===== -->
+  <title>Ziemia Goszen — zbór chrześcijański</title>
+  <meta name="description" content="Oficjalna strona zboru Ziemia Goszen. Miejsce społeczności, nauczania i wspólnego wzrastania. Zapraszamy na spotkania oraz transmisje online na YouTube." />
+  <meta name="theme-color" content="#0b1530" />
+
+  <!-- ===== Open Graph (podstawowy zestaw) ===== -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Ziemia Goszen" />
+  <meta property="og:title" content="Ziemia Goszen — zbór chrześcijański" />
+  <meta property="og:description" content="Miejsce społeczności, nauczania i wspólnego wzrastania. Zapraszamy na spotkania oraz transmisje online." />
+  <!-- TODO: Podmień na docelowy adres strony oraz obrazek podglądu -->
+  <meta property="og:url" content="https://example.com/" />
+  <meta property="og:image" content="https://example.com/og-image.jpg" />
+  <meta property="og:locale" content="pl_PL" />
+
+  <!-- Fonty: nowoczesna, czytelna typografia -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       ZMIENNE / DESIGN TOKENS
+       ========================================================= */
+    :root {
+      /* Kolory */
+      --navy-900: #0b1530;   /* bardzo ciemny granat — tła akcentowe */
+      --navy-800: #111d3d;
+      --navy-700: #1b2a52;
+      --ink: #1a1f2b;        /* podstawowy tekst */
+      --gray-600: #5f5a4f;   /* tekst drugorzędny (ocieplony) */
+      --gray-400: #95907f;
+      --gray-200: #d8cfba;   /* obramowania (ciepłe) */
+      --gray-100: #e2d9c5;   /* delikatne tła / pas sekcji */
+      --white: #ffffff;
+      --bg: #e8e0cf;         /* macadamia — tło strony */
+      --surface: #faf7f0;    /* ciepła biel — karty, nagłówek */
+      --gold: #c8a24a;       /* subtelny złoty akcent */
+      --gold-soft: #e7d4a3;
+
+      /* Typografia */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+      /* Przestrzeń i kształt */
+      --maxw: 1120px;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow-md: 0 10px 30px rgba(16, 24, 40, 0.08);
+      --shadow-lg: 0 24px 60px rgba(11, 21, 48, 0.16);
+
+      /* Animacje */
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --speed: 0.4s;
+    }
+
+    /* =========================================================
+       RESET / PODSTAWY
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    img { max-width: 100%; display: block; }
+
+    a { color: inherit; text-decoration: none; }
+
+    h1, h2, h3 {
+      font-family: var(--font-serif);
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin: 0 0 0.4em;
+    }
+
+    p { margin: 0 0 1em; }
+
+    /* Widoczny focus dla nawigacji klawiaturą */
+    a:focus-visible,
+    button:focus-visible,
+    .btn:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* Link "przejdź do treści" dla czytników/klawiatury */
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 0;
+      background: var(--navy-900);
+      color: var(--white);
+      padding: 12px 18px;
+      border-radius: 0 0 var(--radius-sm) 0;
+      z-index: 1000;
+    }
+    .skip-link:focus { left: 0; }
+
+    /* =========================================================
+       UKŁAD / KONTENERY
+       ========================================================= */
+    .container {
+      width: 100%;
+      max-width: var(--maxw);
+      margin-inline: auto;
+      padding-inline: 24px;
+    }
+
+    section { padding-block: clamp(72px, 11vw, 130px); }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-head { max-width: 640px; margin-bottom: 56px; }
+    .section-head h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); }
+    .section-head p { color: var(--gray-600); font-size: 1.075rem; }
+
+    /* =========================================================
+       NAGŁÓWEK / NAWIGACJA
+       ========================================================= */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      background: rgba(250, 247, 240, 0.80);
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--speed) var(--ease), background var(--speed) var(--ease);
+    }
+    .site-header.is-scrolled {
+      border-bottom-color: var(--gray-200);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+      gap: 20px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .brand .mark {
+      width: 34px;
+      height: 34px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--navy-900);
+      color: var(--gold-soft);
+      font-family: var(--font-serif);
+      font-size: 1rem;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      transition: color 0.25s var(--ease);
+    }
+    .nav-links a:hover { color: var(--ink); }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+
+    /* =========================================================
+       PRZEŁĄCZNIK JĘZYKA (segmented control)
+       ========================================================= */
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 3px;
+      background: var(--surface);
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+    }
+    .lang-switch button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--gray-600);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.25s var(--ease), color 0.25s var(--ease);
+    }
+    .lang-switch button:hover { color: var(--ink); }
+    .lang-switch button[aria-pressed="true"] {
+      background: var(--navy-900);
+      color: var(--white);
+    }
+
+    /* =========================================================
+       PRZYCISKI
+       ========================================================= */
+    .btn {
+      --btn-bg: var(--navy-900);
+      --btn-fg: var(--white);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 26px;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--btn-fg);
+      background: var(--btn-bg);
+      border: 1px solid transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+                  background 0.25s var(--ease), color 0.25s var(--ease);
+      will-change: transform;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .btn:active { transform: translateY(0); }
+
+    .btn--primary { --btn-bg: var(--navy-900); }
+    .btn--primary:hover { background: var(--navy-700); }
+
+    .btn--gold {
+      --btn-bg: var(--gold);
+      --btn-fg: #2a2106;
+    }
+    .btn--gold:hover { background: var(--gold-soft); }
+
+    .btn--ghost {
+      --btn-bg: transparent;
+      --btn-fg: var(--ink);
+      border-color: var(--gray-200);
+    }
+    .btn--ghost:hover { background: var(--gray-100); box-shadow: none; }
+
+    .btn--large { padding: 17px 34px; font-size: 1.06rem; }
+
+    /* =========================================================
+       SEKCJA HERO
+       ========================================================= */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(1100px 600px at 80% -10%, rgba(200, 162, 74, 0.12), transparent 60%),
+        radial-gradient(900px 600px at 0% 0%, rgba(27, 42, 82, 0.05), transparent 55%),
+        var(--bg);
+      padding-block: clamp(90px, 14vw, 170px);
+    }
+    /* Układ: krzyż po lewej + treść po prawej (desktop) */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: clamp(36px, 6vw, 88px);
+    }
+    .hero-cross {
+      color: var(--ink);          /* czerń złamana — pasuje do palety */
+      line-height: 0;
+    }
+    .hero-cross svg {
+      width: clamp(120px, 17vw, 220px);
+      height: auto;
+      display: block;
+    }
+    .hero-inner { max-width: 720px; }
+    .hero h1 {
+      font-size: clamp(2.6rem, 7vw, 5rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25em;
+    }
+    .hero .hero-place {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin: -0.15em 0 0.5em;
+    }
+    .hero .tagline {
+      font-family: var(--font-serif);
+      font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+      color: var(--navy-700);
+      margin-bottom: 0;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      margin-top: 2.4em;
+    }
+
+    /* Na węższych ekranach krzyż ląduje nad treścią */
+    @media (max-width: 720px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 28px; }
+      .hero-cross svg { width: 90px; }
+    }
+
+    /* Delikatne tło dekoracyjne */
+    .hero-glow {
+      position: absolute;
+      inset: auto -10% -40% auto;
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(200, 162, 74, 0.16), transparent 70%);
+      filter: blur(20px);
+      pointer-events: none;
+    }
+
+    /* =========================================================
+       SEKCJA INFORMACJE (3 bloki)
+       ========================================================= */
+    .info { background: var(--gray-100); }   /* ciepły pas sekcji */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 34px 30px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+    }
+    .info-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    .info-card .icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--navy-900);
+      color: var(--gold-soft);
+      margin-bottom: 20px;
+    }
+    .info-card h3 { font-size: 1.3rem; margin-bottom: 0.5em; }
+    .info-card p { color: var(--gray-600); margin: 0; }
+    .info-card .meeting { display: block; color: var(--ink); font-weight: 500; }
+
+    @media (max-width: 860px) {
+      .info-grid { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; }
+    }
+
+    /* =========================================================
+       SEKCJA CTA
+       ========================================================= */
+    .cta-wrap { padding-block: clamp(70px, 10vw, 120px); }
+    .cta {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      background:
+        radial-gradient(700px 380px at 50% -30%, rgba(200, 162, 74, 0.18), transparent 60%),
+        linear-gradient(180deg, var(--navy-800), var(--navy-900));
+      color: var(--white);
+      border-radius: 28px;
+      padding: clamp(50px, 8vw, 90px) 28px;
+      box-shadow: var(--shadow-lg);
+    }
+    .cta h2 { color: var(--white); font-size: clamp(1.9rem, 4.5vw, 3rem); }
+    .cta p {
+      color: var(--gray-400);
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin-inline: auto;
+      margin-bottom: 2em;
+    }
+
+    /* =========================================================
+       STOPKA
+       ========================================================= */
+    .site-footer {
+      border-top: 1px solid var(--gray-200);
+      padding-block: 48px;
+    }
+    .footer-blessing {
+      font-family: var(--font-serif);
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      color: var(--navy-700);
+      text-align: center;
+      margin: 0 0 40px;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .footer-brand .mark {
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      border-radius: 8px;
+      background: var(--navy-900);
+      color: var(--gold-soft);
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+    }
+    .footer-copy { color: var(--gray-400); font-size: 0.9rem; margin: 0; }
+
+    /* =========================================================
+       ANIMACJE FADE-IN PRZY SCROLLU
+       ========================================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+    /* Lekkie kaskadowe opóźnienie dla elementów w siatce */
+    .reveal[data-delay="1"] { transition-delay: 0.08s; }
+    .reveal[data-delay="2"] { transition-delay: 0.16s; }
+    .reveal[data-delay="3"] { transition-delay: 0.24s; }
+    .reveal[data-delay="4"] { transition-delay: 0.32s; }
+
+    /* Szacunek dla preferencji ograniczenia ruchu */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .btn:hover, .info-card:hover { transform: none; }
+      * { animation-duration: 0.001ms !important; }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Hello</h1>
+  <a class="skip-link" href="#tresc" data-i18n="skip">Przejdź do treści</a>
+
+  <!-- ===================== NAGŁÓWEK ===================== -->
+  <header class="site-header" id="header">
+    <div class="container nav">
+      <a class="brand" href="#" aria-label="Ziemia Goszen — strona główna">
+        <span class="mark" aria-hidden="true">ZG</span>
+        Ziemia Goszen
+      </a>
+
+      <div class="nav-right">
+        <nav aria-label="Nawigacja główna">
+          <ul class="nav-links">
+            <li><a href="#informacje" data-i18n="nav.info">Informacje</a></li>
+            <li><a href="#kontakt" data-i18n="nav.broadcasts">Transmisje</a></li>
+          </ul>
+        </nav>
+
+        <!-- Przełącznik języka: PL (domyślny) / EN / RU -->
+        <div class="lang-switch" role="group" aria-label="Wybór języka / Language">
+          <button type="button" data-lang="pl" aria-pressed="true">PL</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="tresc">
+
+    <!-- ===================== SEKCJA 1 — HERO ===================== -->
+    <section class="hero" aria-labelledby="hero-title">
+      <span class="hero-glow" aria-hidden="true"></span>
+      <div class="container hero-grid">
+        <!-- Minimalistyczny krzyż łaciński (dekoracyjny, stąd aria-hidden) -->
+        <div class="hero-cross reveal" aria-hidden="true">
+          <svg viewBox="0 0 120 180" width="120" height="180" role="presentation">
+            <rect x="54" y="0" width="12" height="180" rx="1.5" fill="currentColor"/>
+            <rect x="10" y="42" width="100" height="12" rx="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+      <div class="hero-inner">
+        <span class="eyebrow reveal" data-i18n="hero.eyebrow">Biblijnie wierzący chrześcijanie</span>
+        <h1 class="reveal" id="hero-title" data-delay="1" data-i18n="hero.place">Zbór w Czekanowie</h1>
+        <p class="hero-place reveal" data-delay="2">Ziemia Goszen</p>
+        <p class="tagline reveal" data-delay="3" data-i18n="hero.tagline">„Jezus Chrystus wczoraj i dziś, ten sam i na wieki." — Hbr 13:8</p>
+        <div class="hero-actions reveal" data-delay="4">
+          <!-- TODO: Podmień adres URL na właściwy kanał YouTube zboru -->
+          <a class="btn btn--primary btn--large"
+             href="https://www.youtube.com/@ziemiagoszen"
+             target="_blank" rel="noopener noreferrer"
+             data-i18n="hero.btnYoutube"
+             data-i18n-aria="hero.btnYoutubeAria"
+             aria-label="Przejdź do kanału YouTube (otwiera nową kartę)">
+            ▶ Przejdź do kanału YouTube
+          </a>
+          <a class="btn btn--ghost btn--large" href="#informacje" data-i18n="hero.btnMore">Informacje o spotkaniach</a>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- ===================== SEKCJA 2 — INFORMACJE ===================== -->
+    <section class="info" id="informacje" aria-labelledby="info-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow" data-i18n="info.eyebrow">Informacje o zborze</span>
+          <h2 id="info-title" data-i18n="info.title">Kiedy i gdzie się spotykamy</h2>
+          <p data-i18n="info.subtitle">Spotykamy się regularnie, a nasze nabożeństwa są dostępne również online.</p>
+        </div>
+
+        <div class="info-grid">
+          <!-- Adres -->
+          <article class="info-card reveal" data-delay="1">
+            <div class="icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <h3 data-i18n="info.addressTitle">Adres</h3>
+            <p>
+              <span class="meeting">ul. Szkolna 7</span>
+              <span class="meeting">42-677 Czekanów</span>
+            </p>
+          </article>
+
+          <!-- Spotkania -->
+          <article class="info-card reveal" data-delay="2">
+            <div class="icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+            </div>
+            <h3 data-i18n="info.meetingsTitle">Spotkania</h3>
+            <p>
+              <span class="meeting" data-i18n="info.meetingSun">Niedziela 10:00</span>
+              <span class="meeting" data-i18n="info.meetingWed">Środa 18:00</span>
+            </p>
+          </article>
+
+          <!-- Transmisje -->
+          <article class="info-card reveal" data-delay="3">
+            <div class="icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/>
+              </svg>
+            </div>
+            <h3 data-i18n="info.broadcastsTitle">Transmisje</h3>
+            <p data-i18n="info.broadcastsText">Na żywo i archiwalne nagrania dostępne na YouTube</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SEKCJA 3 — CTA ===================== -->
+    <section class="cta-wrap" id="kontakt" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta reveal">
+          <span class="eyebrow" data-i18n="cta.eyebrow">Spotkania online</span>
+          <h2 id="cta-title" data-i18n="cta.title">Oglądaj transmisje na żywo i nagrania</h2>
+          <p data-i18n="cta.text">
+            Nie możesz być z nami osobiście? Nabożeństwa możesz oglądać z dowolnego
+            miejsca — na żywo i z archiwum na naszym kanale YouTube.
+          </p>
+          <!-- TODO: Podmień adres URL na właściwy kanał YouTube zboru -->
+          <a class="btn btn--gold btn--large"
+             href="https://www.youtube.com/@ziemiagoszen"
+             target="_blank" rel="noopener noreferrer"
+             data-i18n="cta.btn"
+             data-i18n-aria="cta.btnAria"
+             aria-label="Przejdź do transmisji na YouTube (otwiera nową kartę)">
+            ▶ Przejdź do transmisji
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== SEKCJA 4 — STOPKA ===================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-blessing reveal" data-i18n="footer.blessing">Niech Cię Bóg błogosławi</p>
+    </div>
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="mark" aria-hidden="true">ZG</span>
+        Ziemia Goszen
+      </div>
+      <!-- Rok generowany automatycznie przez JavaScript (#year) -->
+      <p class="footer-copy">&copy; <span id="year">2026</span> Ziemia Goszen. <span data-i18n="footer.rights">Wszelkie prawa zastrzeżone.</span></p>
+    </div>
+  </footer>
+
+  <script>
+    /* =========================================================
+       1) Rok w stopce — generowany automatycznie
+       ========================================================= */
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* =========================================================
+       2) Cień nagłówka po przewinięciu strony
+       ========================================================= */
+    const header = document.getElementById('header');
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    /* =========================================================
+       3) Delikatne fade-in przy scrollowaniu (IntersectionObserver)
+       ========================================================= */
+    const revealEls = document.querySelectorAll('.reveal');
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target); // animujemy tylko raz
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+      revealEls.forEach((el) => observer.observe(el));
+    } else {
+      revealEls.forEach((el) => el.classList.add('is-visible'));
+    }
+
+    /* =========================================================
+       4) TŁUMACZENIA (PL domyślny / EN / RU)
+          Aby dodać/zmienić tekst: edytuj słownik I18N poniżej.
+          W HTML element oznaczamy atrybutem data-i18n="klucz",
+          a tłumaczenie aria-label atrybutem data-i18n-aria="klucz".
+       ========================================================= */
+    const I18N = {
+      pl: {
+        docTitle: 'Ziemia Goszen — zbór chrześcijański',
+        skip: 'Przejdź do treści',
+        'nav.info': 'Informacje',
+        'nav.broadcasts': 'Transmisje',
+        'hero.eyebrow': 'Biblijnie wierzący chrześcijanie',
+        'hero.place': 'Zbór w Czekanowie',
+        'hero.tagline': '„Jezus Chrystus wczoraj i dziś, ten sam i na wieki." — Hbr 13:8',
+        'hero.btnYoutube': '▶ Przejdź do kanału YouTube',
+        'hero.btnYoutubeAria': 'Przejdź do kanału YouTube (otwiera nową kartę)',
+        'hero.btnMore': 'Informacje o spotkaniach',
+        'info.eyebrow': 'Informacje o zborze',
+        'info.title': 'Kiedy i gdzie się spotykamy',
+        'info.subtitle': 'Spotykamy się regularnie, a nasze nabożeństwa są dostępne również online.',
+        'info.addressTitle': 'Adres',
+        'info.meetingsTitle': 'Spotkania',
+        'info.meetingSun': 'Niedziela 10:00',
+        'info.meetingWed': 'Środa 18:00',
+        'info.broadcastsTitle': 'Transmisje',
+        'info.broadcastsText': 'Na żywo i archiwalne nagrania dostępne na YouTube',
+        'cta.eyebrow': 'Spotkania online',
+        'cta.title': 'Oglądaj transmisje na żywo i nagrania',
+        'cta.text': 'Nie możesz być z nami osobiście? Nabożeństwa możesz oglądać z dowolnego miejsca - na żywo i z archiwum na naszym kanale YouTube.',
+        'cta.btn': '▶ Przejdź do transmisji',
+        'cta.btnAria': 'Przejdź do transmisji na YouTube (otwiera nową kartę)',
+        'footer.blessing': 'Niech Cię Bóg błogosławi',
+        'footer.rights': 'Wszelkie prawa zastrzeżone.'
+      },
+      en: {
+        docTitle: 'Ziemia Goszen — Christian church',
+        skip: 'Skip to content',
+        'nav.info': 'Information',
+        'nav.broadcasts': 'Broadcasts',
+        'hero.eyebrow': 'Bible-believing Christians',
+        'hero.place': 'Church in Czekanów',
+        'hero.tagline': '“Jesus Christ is the same yesterday and today and forever.” — Hebrews 13:8',
+        'hero.btnYoutube': '▶ Go to our YouTube channel',
+        'hero.btnYoutubeAria': 'Go to our YouTube channel (opens a new tab)',
+        'hero.btnMore': 'Meeting information',
+        'info.eyebrow': 'About the church',
+        'info.title': 'When and where we meet',
+        'info.subtitle': 'We meet regularly, and our services are also available online.',
+        'info.addressTitle': 'Address',
+        'info.meetingsTitle': 'Meetings',
+        'info.meetingSun': 'Sunday 10:00',
+        'info.meetingWed': 'Wednesday 18:00',
+        'info.broadcastsTitle': 'Broadcasts',
+        'info.broadcastsText': 'Live and archived recordings available on YouTube',
+        'cta.eyebrow': 'Online services',
+        'cta.title': 'Watch live broadcasts and recordings',
+        'cta.text': 'Can’t be with us in person? You can watch our services from anywhere - live and from the archive on our YouTube channel.',
+        'cta.btn': '▶ Go to broadcasts',
+        'cta.btnAria': 'Go to broadcasts on YouTube (opens a new tab)',
+        'footer.blessing': 'May God bless you',
+        'footer.rights': 'All rights reserved.'
+      }
+    };
+
+    const langButtons = document.querySelectorAll('.lang-switch button');
+
+    function setLanguage(lang) {
+      const dict = I18N[lang] || I18N.pl;
+
+      // Tekst elementów
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const value = dict[el.getAttribute('data-i18n')];
+        if (value !== undefined) el.textContent = value;
+      });
+
+      // Tłumaczone aria-label
+      document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+        const value = dict[el.getAttribute('data-i18n-aria')];
+        if (value !== undefined) el.setAttribute('aria-label', value);
+      });
+
+      // Meta dokumentu + zapis wyboru
+      document.documentElement.lang = lang;
+      if (dict.docTitle) document.title = dict.docTitle;
+      try { localStorage.setItem('lang', lang); } catch (e) { /* prywatny tryb */ }
+
+      // Stan aktywnego przycisku
+      langButtons.forEach((btn) =>
+        btn.setAttribute('aria-pressed', String(btn.dataset.lang === lang))
+      );
+    }
+
+    langButtons.forEach((btn) =>
+      btn.addEventListener('click', () => setLanguage(btn.dataset.lang))
+    );
+
+    // Język początkowy: zapisany wybór → język przeglądarki → PL
+    let initial = 'pl';
+    try { initial = localStorage.getItem('lang') || initial; } catch (e) {}
+    if (!I18N[initial]) {
+      const nav = (navigator.language || 'pl').slice(0, 2).toLowerCase();
+      initial = I18N[nav] ? nav : 'pl';
+    }
+    setLanguage(initial);
+  </script>
 </body>
 </html>
