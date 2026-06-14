@@ -427,6 +427,12 @@
       .hero-cross svg { width: 90px; }
     }
 
+    /* Telefony: przyciski hero w pełnej szerokości, jeden pod drugim */
+    @media (max-width: 540px) {
+      .hero-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+      .hero-actions .btn { width: 100%; }
+    }
+
     /* Delikatne tło dekoracyjne */
     .hero-glow {
       position: absolute;
@@ -615,7 +621,7 @@
         <span class="eyebrow reveal" data-i18n="hero.eyebrow">Biblijnie wierzący chrześcijanie</span>
         <h1 class="reveal" id="hero-title" data-delay="1" data-i18n="hero.place">Zbór w Czekanowie</h1>
         <p class="hero-place reveal" data-delay="2">Ziemia Goszen</p>
-        <p class="tagline reveal" data-delay="3" data-i18n="hero.tagline">„Jezus Chrystus wczoraj i dziś, ten sam i na wieki." — Hbr 13:8</p>
+        <p class="tagline reveal" data-delay="3" data-i18n="hero.tagline">„Jezus Chrystus wczoraj i dziś, ten sam i na wieki." —&nbsp;Hbr&nbsp;13:8</p>
         <div class="hero-actions reveal" data-delay="4">
           <!-- TODO: Podmień adres URL na właściwy kanał YouTube zboru -->
           <a class="btn btn--primary btn--large"
@@ -632,7 +638,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
-            <span data-i18n="hero.btnArchive">Przejdź do prywatnego archiwum</span>
+            <span data-i18n="hero.btnArchive">Prywatne archiwum</span>
           </button>
         </div>
       </div>
@@ -802,11 +808,11 @@
         'nav.broadcasts': 'Transmisje',
         'hero.eyebrow': 'Biblijnie wierzący chrześcijanie',
         'hero.place': 'Zbór w Czekanowie',
-        'hero.tagline': '„Jezus Chrystus wczoraj i dziś, ten sam i na wieki." — Hbr 13:8',
+        'hero.tagline': '„Jezus Chrystus wczoraj i dziś, ten sam i na wieki." — Hbr 13:8',
         'hero.btnYoutube': '▶ Przejdź do kanału YouTube',
         'hero.btnYoutubeAria': 'Przejdź do kanału YouTube (otwiera nową kartę)',
         'hero.btnMore': 'Informacje o spotkaniach',
-        'hero.btnArchive': 'Przejdź do prywatnego archiwum',
+        'hero.btnArchive': 'Prywatne archiwum',
         'archive.modalTitle': 'Prywatne archiwum',
         'archive.modalDesc': 'Wprowadź hasło, aby otworzyć archiwum.',
         'archive.passPlaceholder': 'Hasło',
@@ -837,11 +843,11 @@
         'nav.broadcasts': 'Broadcasts',
         'hero.eyebrow': 'Bible-believing Christians',
         'hero.place': 'Church in Czekanów',
-        'hero.tagline': '“Jesus Christ is the same yesterday and today and forever.” — Hebrews 13:8',
+        'hero.tagline': '“Jesus Christ is the same yesterday and today and forever.” — Hebrews 13:8',
         'hero.btnYoutube': '▶ Go to our YouTube channel',
         'hero.btnYoutubeAria': 'Go to our YouTube channel (opens a new tab)',
         'hero.btnMore': 'Meeting information',
-        'hero.btnArchive': 'Go to private archive',
+        'hero.btnArchive': 'Private archive',
         'archive.modalTitle': 'Private archive',
         'archive.modalDesc': 'Enter the password to open the archive.',
         'archive.passPlaceholder': 'Password',
@@ -941,7 +947,19 @@
       archiveBtn.focus();
     }
 
-    archiveBtn.addEventListener('click', openArchiveModal);
+    // Jeśli hasło zostało już raz poprawnie wpisane (zapamiętane w przeglądarce),
+    // przycisk przechodzi prosto do archiwum — bez pytania o hasło.
+    function isArchiveAuthed() {
+      try { return localStorage.getItem(ARCHIVE_AUTH_KEY) === 'ok'; } catch (e) { return false; }
+    }
+
+    archiveBtn.addEventListener('click', () => {
+      if (isArchiveAuthed()) {
+        window.location.href = 'archiwum.html';
+      } else {
+        openArchiveModal();
+      }
+    });
     archiveCancel.addEventListener('click', closeArchiveModal);
 
     // Zamknięcie modalu: klik w tło lub Escape
@@ -955,8 +973,8 @@
     archiveForm.addEventListener('submit', (e) => {
       e.preventDefault();
       if (archivePass.value === ARCHIVE_PASSWORD) {
-        // Ustawiamy znacznik sesji i przechodzimy do archiwum
-        try { sessionStorage.setItem(ARCHIVE_AUTH_KEY, 'ok'); } catch (e) {}
+        // Zapamiętujemy zalogowanie na stałe (localStorage) i przechodzimy do archiwum
+        try { localStorage.setItem(ARCHIVE_AUTH_KEY, 'ok'); } catch (e) {}
         window.location.href = 'archiwum.html';
       } else {
         archiveError.hidden = false;

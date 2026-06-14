@@ -183,13 +183,13 @@
       overflow: hidden;
     }
     .folder-head {
-      display: flex; align-items: center; gap: 14px;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px;
       padding: 18px 22px;
       border-bottom: 1px solid var(--gray-200);
     }
     .folder-head .folder-ico { color: var(--gold); flex: none; }
-    .folder-name { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 500; }
-    .folder-count { color: var(--gray-400); font-size: 0.85rem; font-weight: 500; }
+    .folder-name { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+    .folder-count { color: var(--gray-400); font-size: 0.85rem; font-weight: 500; flex: none; }
     .folder-head-actions { margin-left: auto; display: flex; gap: 8px; flex: none; }
 
     .folder-body { padding: 18px 22px 22px; }
@@ -232,7 +232,31 @@
     .footer-note { text-align: center; color: var(--gray-400); font-size: 0.8rem; padding: 30px 0 50px; }
 
     @media (max-width: 560px) {
-      .toolbar { padding-block: 22px 16px; }
+      .container { padding-inline: 18px; }
+
+      /* Nagłówek: mniejsze odstępy, by zmieścić markę i przycisk powrotu */
+      .app-header .container { gap: 10px; }
+      .app-brand { font-size: 1rem; }
+      .app-brand .mark { width: 28px; height: 28px; }
+
+      /* Pasek narzędzi: szukajka i przycisk w pełnej szerokości */
+      .toolbar { padding-block: 22px 16px; gap: 10px; }
+      .search { flex-basis: 100%; }
+      #newFolderBtn { width: 100%; }
+
+      /* Folder: nazwa na górze, akcje w osobnym, pełnym wierszu */
+      .folder-head { padding: 16px 18px; }
+      .folder-body { padding: 16px 18px 18px; }
+      .folder-head-actions { margin-left: 0; width: 100%; }
+      .folder-head-actions .btn { flex: 1; }
+
+      /* Pliki: dwie kolumny miniatur na telefonie */
+      .files-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .file-thumb { height: 100px; }
+    }
+
+    @media (max-width: 380px) {
+      .files-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -352,7 +376,8 @@
     gateForm.addEventListener('submit', (e) => {
       e.preventDefault();
       if (gatePass.value === PASSWORD) {
-        try { sessionStorage.setItem(AUTH_KEY, 'ok'); } catch (e) {}
+        // Zapamiętujemy na stałe — przy kolejnych wizytach nie pytamy o hasło
+        try { localStorage.setItem(AUTH_KEY, 'ok'); } catch (e) {}
         showApp();
       } else {
         gateError.hidden = false;
@@ -765,7 +790,7 @@
 
     /* ---------- Auto-logowanie (na końcu skryptu, po zdefiniowaniu
        wszystkich zmiennych — inaczej init() trafia w „temporal dead zone”) ---------- */
-    if (sessionStorage.getItem(AUTH_KEY) === 'ok') {
+    if (localStorage.getItem(AUTH_KEY) === 'ok') {
       showApp();
     } else {
       gatePass.focus();
